@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: devops
+  name: jenkins
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: jenkins
+              servicePort: 80
+      host: jenkins.nickdevops.com
+

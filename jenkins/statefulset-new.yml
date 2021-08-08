@@ -1,0 +1,111 @@
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+  name: jenkins
+  labels:
+    name: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: jenkins
+  template:
+    metadata:
+      name: jenkins
+      namespace: devops
+      creationTimestamp: null
+      labels:
+        name: jenkins
+    spec:
+      containers:
+        - name: jenkins
+          image: 'jenkins/jenkins:lts'
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 50000
+              protocol: TCP
+          env:
+            - name: LIMITS_MEMORY
+              valueFrom:
+                resourceFieldRef:
+                  resource: limits.memory
+                  divisor: 1Mi
+            - name: JAVA_OPTS
+              value: >-
+                -Xmx$(LIMITS_MEMORY)m -XshowSettings:vm
+                -Dhudson.slaves.NodeProvisioner.initialDelay=0
+                -Dhudson.slaves.NodeProvisioner.MARGIN=50
+                -Dhudson.slaves.NodeProvisioner.MARGIN0=0.85
+            - name: http_proxy
+              value: 'http://172.18.178.236:7890'
+            - name: https_proxy
+              value: 'http://172.18.178.236:7890'
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: '1'
+              memory: 500m
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 12
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 10
+      dnsPolicy: ClusterFirst
+      serviceAccountName: jenkins-slave
+      serviceAccount: jenkins-slave
+      securityContext: {}
+      imagePullSecrets:
+        - name: nexus-pull
+      schedulerName: default-scheduler
+      tolerations:
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: NoSchedule
+  volumeClaimTemplates:
+    - kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: jenkins-home
+        namespace: devops
+        creationTimestamp: null
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  serviceName: jenkins
+  podManagementPolicy: OrderedReady
+  updateStrategy:
+    type: RollingUpdate
+  revisionHistoryLimit: 10
+

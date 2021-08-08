@@ -1,0 +1,21 @@
+
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: jenkinsdemo
+  labels:
+    name: jenkinsdemo
+spec:
+  serviceName: jenkinsdemo
+  replicas: 2
+  template:
+    metadata:
+     labels:
+       name: jenkinsdemo
+    spec:
+     containers:
+     - name: jenkinsdemo
+       image:  registry.cn-shenzhen.aliyuncs.com/nick_docker_registry/jenkins_demo_sit:v1.0.0
+       imagePullPolicy: IfNotPresent
+       ports:
+       - containerPort: 8080

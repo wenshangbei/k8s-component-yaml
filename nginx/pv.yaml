@@ -1,0 +1,14 @@
+piVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nginx-config-pv
+spec:
+  capacity:
+    storage: 100Mi
+  accessModes:
+  - ReadWriteMany
+  persistentVolumeReclaimPolicy: Delete
+  nfs:
+    server: 172.18.178.236
+    path: /opt/nfs/jenkins-data
+

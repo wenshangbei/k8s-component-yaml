@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: jenkinsdemo
+  labels:
+    name: jenkinsdemo
+spec:
+  replicas: 2
+  selector:
+    name: jenkinsdemo
+  template:
+    metadata:
+     labels:
+       name: jenkinsdemo
+    spec:
+     containers:
+     - name: jenkinsdemo
+       image:  registry.cn-shenzhen.aliyuncs.com/nick_docker_registry/jenkins_demo_sit:v1.0.0
+       imagePullPolicy: IfNotPresent
+       ports:
+       - containerPort: 8080
