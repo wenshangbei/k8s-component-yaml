@@ -1,0 +1,18 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: linda-nginx-pv
+spec:
+  capacity:
+    storage: 100Mi
+  nfs:
+    server: 172.18.204.115
+    path: /data/www/hexo
+  accessModes:
+    - ReadWriteMany
+  claimRef:
+    kind: PersistentVolumeClaim
+    namespace: default
+    name: linda-nginx-pvc
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem

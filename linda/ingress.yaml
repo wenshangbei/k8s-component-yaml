@@ -1,0 +1,14 @@
+kind: Ingress
+apiVersion: extensions/v1beta1
+metadata:
+  name: linda-nginx-ingress
+spec:
+  rules:
+    - host: linda1994.top
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              serviceName: linda-nginx
+              servicePort: 80
